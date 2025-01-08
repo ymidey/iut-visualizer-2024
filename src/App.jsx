@@ -1,16 +1,10 @@
 import Canvas from "./components/Canvas/Canvas";
-import AudioController from "./utils/AudioController";
+import Landing from "./components/Landing/Landing";
 
 function App() {
-  const onClick = () => {
-    AudioController.setup();
-  };
-
   return (
     <>
-      <button className="play" onClick={onClick}>
-        Play
-      </button>
+      <Landing />
       <Canvas />
     </>
   );

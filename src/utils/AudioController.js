@@ -23,9 +23,11 @@ class AudioController {
     this.audioSource.connect(this.analyserNode);
     this.audioSource.connect(this.ctx.destination);
 
-    this.audio.play();
-
     gsap.ticker.add(this.tick);
+  }
+
+  play() {
+    this.audio.play();
   }
 
   tick = () => {
