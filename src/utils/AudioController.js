@@ -1,6 +1,5 @@
 import danceTheNight from "/dance-the-night.mp3";
 import gsap from "gsap";
-console.log(danceTheNight);
 
 class AudioController {
   constructor() {}
