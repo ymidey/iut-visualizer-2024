@@ -1,4 +1,3 @@
-import danceTheNight from "/dance-the-night.mp3";
 import gsap from "gsap";
 
 class AudioController {
@@ -8,7 +7,7 @@ class AudioController {
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
 
     this.audio = new Audio();
-    this.audio.src = danceTheNight;
+    // this.audio.src = danceTheNight;
     this.audio.volume = 0.1;
 
     this.audioSource = this.ctx.createMediaElementSource(this.audio);

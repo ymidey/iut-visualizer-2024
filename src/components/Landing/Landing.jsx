@@ -1,6 +1,7 @@
 import s from "./Landing.module.scss";
 import AudioController from "../../utils/AudioController";
 import { useState } from "react";
+import Button from "../Button/Button";
 
 const Landing = () => {
   const [hasClicked, setHasClicked] = useState(false);
@@ -11,10 +12,7 @@ const Landing = () => {
   };
 
   return (
-    <div
-      className={`${s.landing} ${hasClicked ? s.landingHidden : ""}`}
-      onClick={onClick}
-    >
+    <section className={`${s.landing} ${hasClicked ? s.landingHidden : ""}`}>
       <div className={s.wrapper}>
         <h1 className={s.title}>Music Visualizer</h1>
         <p>
@@ -23,9 +21,9 @@ const Landing = () => {
         </p>
         <p>Découverte et usage de three.js, gsap, react, la Web Audio API.</p>
         <p>Drag and drop de fichiers mp3 pour pouvoir les visualiser en 3D.</p>
-        <button className={s.btn}>Commencer</button>
+        <Button label={"Commencer"} onClick={onClick} />
       </div>
-    </div>
+    </section>
   );
 };
 
