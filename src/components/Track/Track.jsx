@@ -4,7 +4,11 @@ import s from "./Track.module.scss";
 const Track = ({ title, cover, src, duration, artists, index }) => {
   const getSeconds = () => {
     const minutes = Math.floor(duration / 60);
-    const seconds = Math.round(duration - minutes * 60);
+    let seconds = Math.round(duration - minutes * 60);
+
+    if (seconds < 10) {
+      seconds = "0" + seconds;
+    }
 
     return minutes + ":" + seconds;
   };

@@ -71,7 +71,7 @@ class Scene {
       1000
     );
 
-    this.camera.position.z = 5;
+    this.camera.position.z = 200;
   }
 
   setupRenderer() {

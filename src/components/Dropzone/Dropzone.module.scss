@@ -6,6 +6,10 @@
   left: 0;
   z-index: 1;
 
+  &_active {
+    z-index: 3;
+  }
+
   .outer {
     background-color: rgba(black, 0.8);
     width: 100%;
