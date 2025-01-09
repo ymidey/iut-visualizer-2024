@@ -27,13 +27,22 @@ export default class Board {
           mesh = new THREE.Mesh(this.geometry, this.pinkMaterial);
         }
 
-        mesh.position.set(x, y, 0);
+        mesh.position.set(-this.width / 2 + x, -this.width / 2 + y, 0);
 
         this.group.add(mesh);
       }
     }
+  }
 
-    this.group.position.x = -this.width / 2;
-    this.group.position.y = -this.width / 2;
+  update() {
+    // console.log(this.group.children[0]);
+    if (!audioController.fdata) return;
+
+    for (let i = 0; i < this.group.children.length; i++) {
+      this.group.children[i].scale.z = audioController.fdata[i] * 0.05;
+    }
+
+    this.group.rotation.x += 0.001;
+    this.group.rotation.y += 0.001;
   }
 }
