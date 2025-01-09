@@ -4,6 +4,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 
 import Line from "./objects/Line";
+import Board from "./objects/Board";
 
 class Scene {
   constructor() {}
@@ -40,8 +41,11 @@ class Scene {
     // this.scene.add(this.mesh);
 
     // Line
-    this.line = new Line();
-    this.scene.add(this.line.group);
+    // this.line = new Line();
+    // this.scene.add(this.line.group);
+
+    this.board = new Board();
+    this.scene.add(this.board.group);
   }
 
   onResize = () => {
@@ -71,7 +75,7 @@ class Scene {
       1000
     );
 
-    this.camera.position.z = 200;
+    this.camera.position.z = 20;
   }
 
   setupRenderer() {

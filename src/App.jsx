@@ -6,9 +6,9 @@ import Tracks from "./components/Tracks/Tracks";
 function App() {
   return (
     <>
-      <Landing />
-      <Dropzone />
-      <Tracks />
+      {/* <Landing /> */}
+      {/* <Dropzone /> */}
+      {/* <Tracks /> */}
       <Canvas />
     </>
   );
