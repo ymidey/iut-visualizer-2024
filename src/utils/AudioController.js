@@ -4,6 +4,7 @@ class AudioController {
   constructor() {}
 
   setup() {
+    console.log("setup audiocontroller");
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
 
     this.audio = new Audio();
@@ -25,9 +26,11 @@ class AudioController {
     gsap.ticker.add(this.tick);
   }
 
-  play() {
+  play = (src) => {
+    console.log(this.audio, src);
+    this.audio.src = src;
     this.audio.play();
-  }
+  };
 
   tick = () => {
     this.analyserNode.getByteFrequencyData(this.fdata);
