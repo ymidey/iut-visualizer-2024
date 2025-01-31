@@ -2,9 +2,18 @@ import * as THREE from "three";
 import gsap from "gsap";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
+// post processing
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
+// objects
 import Line from "./objects/Line";
 import Board from "./objects/Board";
+import LogoIut from "./objects/LogoIut";
 
 class Scene {
   constructor() {}
@@ -22,9 +31,73 @@ class Scene {
     this.setupRenderer();
     this.setupControls();
     this.setupStats();
+    this.setupPostProcessing();
+    this.setupGUI();
+
+    this.setupTextureLoader();
+    this.setupGltfLoader();
 
     this.addEvents();
     this.addObjects();
+  }
+
+  setupGUI() {
+    this.gui = new GUI();
+
+    this.bloomFolder = this.gui.addFolder("Bloom");
+    this.bloomFolder
+      .add(this.bloomParams, "threshold", 0, 1)
+      .onChange((value) => {
+        this.bloomPass.threshold = value;
+      })
+      .listen(); // rafraichit visuellement la GUI avec la nouvelle valeur
+
+    this.bloomFolder
+      .add(this.bloomParams, "strength", 0, 3)
+      .onChange((value) => {
+        this.bloomPass.strength = value;
+      })
+      .listen();
+
+    this.bloomFolder
+      .add(this.bloomParams, "radius", 0, 1)
+      .onChange((value) => {
+        this.bloomPass.radius = value;
+      })
+      .listen();
+  }
+
+  setupPostProcessing() {
+    this.composer = new EffectComposer(this.renderer);
+    this.renderPass = new RenderPass(this.scene, this.camera);
+
+    this.bloomParams = {
+      threshold: 0,
+      strength: 0.6,
+      radius: 1,
+    };
+
+    this.bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(this.width, this.height),
+      0,
+      0,
+      0
+    );
+
+    this.bloomPass.threshold = this.bloomParams.threshold;
+    this.bloomPass.strength = this.bloomParams.strength;
+    this.bloomPass.radius = this.bloomParams.radius;
+
+    this.composer.addPass(this.renderPass);
+    this.composer.addPass(this.bloomPass);
+  }
+
+  setupGltfLoader() {
+    this.gltfLoader = new GLTFLoader();
+  }
+
+  setupTextureLoader() {
+    this.textureLoader = new THREE.TextureLoader();
   }
 
   setupControls() {
@@ -40,6 +113,7 @@ class Scene {
     // Déclaration des objets
     this.line = new Line();
     this.board = new Board();
+    this.logoIut = new LogoIut();
     // ....
 
     // ajout de l'objet à la scène par défaut
@@ -56,6 +130,7 @@ class Scene {
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize(this.width, this.height);
+    this.composer.setSize(this.width, this.height);
   };
 
   addEvents() {
@@ -104,6 +179,14 @@ class Scene {
         this.camera.position.z = 20;
         this.currentObject = this.board;
         break;
+      case 2:
+        // logo iut
+        this.bloomParams.threshold = 0.6;
+        this.bloomPass.threshold = 0.6;
+
+        this.camera.position.z = 5;
+        this.currentObject = this.logoIut;
+        break;
       default:
         break;
     }
@@ -115,7 +198,8 @@ class Scene {
   tick = (time, deltaTime, frame) => {
     this.stats.begin();
 
-    this.renderer.render(this.scene, this.camera);
+    // this.renderer.render(this.scene, this.camera);
+    this.composer.render(); // prend le relais sur le renderer pour le post-processing
 
     if (this.currentObject) {
       this.currentObject.update();
