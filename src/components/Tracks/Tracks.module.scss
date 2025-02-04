@@ -29,6 +29,23 @@
   }
 }
 
+.searchInput {
+  background-color: transparent;
+  border: none;
+  outline: initial;
+  padding-bottom: 8px;
+  color: white;
+  border-bottom: solid 2px white;
+  position: absolute;
+  bottom: 5%;
+  left: 0;
+  right: 0;
+  margin: auto;
+
+  width: 250px;
+  font-size: 20px;
+}
+
 .wrapper {
   position: fixed;
   top: 0;
@@ -51,7 +68,9 @@
   .tracks {
     width: 75%;
     margin: auto;
-    margin-top: 25vh;
+    margin-top: 10vh;
+    max-height: 75vh;
+    overflow-y: auto;
 
     .header {
       display: flex;

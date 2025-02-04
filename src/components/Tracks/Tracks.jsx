@@ -1,10 +1,13 @@
-import Track from "../Track/Track";
-
-import s from "./Tracks.module.scss";
 import { useEffect, useState } from "react";
+
+import Track from "../Track/Track";
 import useStore from "../../utils/store";
 import { fetchMetadata } from "../../utils/utils";
 import TRACKS from "../../utils/TRACKS";
+
+import fetchJsonp from "fetch-jsonp";
+
+import s from "./Tracks.module.scss";
 
 const Tracks = () => {
   // permet d'alterner entre true et false pour afficher / cacher le composant
@@ -27,6 +30,41 @@ const Tracks = () => {
   useEffect(() => {
     fetchMetadata(TRACKS, tracks, setTracks);
   }, []);
+
+  const onKeyDown = (e) => {
+    if (e.keyCode === 13 && e.target.value !== "") {
+      // l'utilisateur a appuyé sur sa touche entrée
+      const userInput = e.target.value;
+
+      // appeler la fonction
+      getSongs(userInput);
+    }
+  };
+
+  const getSongs = async (userInput) => {
+    let response = await fetchJsonp(
+      `https://api.deezer.com/search?q=${userInput}&output=jsonp`
+    );
+
+    if (response.ok) {
+      response = await response.json();
+
+      // récupérer le tableau de tracks du store existant
+      const _tracks = [...tracks];
+
+      // pour chaque track renvoyée par l'API
+      response.data.forEach((result) => {
+        _tracks.push(result);
+      });
+
+      // màj le store
+      setTracks(_tracks);
+
+      console.log(_tracks);
+    } else {
+      // erreurs
+    }
+  };
 
   return (
     <>
@@ -54,13 +92,20 @@ const Tracks = () => {
               key={track.title + i}
               title={track.title}
               duration={track.duration}
-              cover={track.cover}
-              artists={track.artists}
-              src={track.path}
+              cover={track.album.cover_xl}
+              // artists={track.artists}
+              src={track.preview}
               index={i}
             />
           ))}
         </div>
+
+        <input
+          type="text"
+          placeholder="Chercher un artiste"
+          className={s.searchInput}
+          onKeyDown={onKeyDown}
+        />
       </section>
     </>
   );

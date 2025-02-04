@@ -14,6 +14,7 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import Line from "./objects/Line";
 import Board from "./objects/Board";
 import LogoIut from "./objects/LogoIut";
+import Cover from "./objects/Cover";
 
 class Scene {
   constructor() {}
@@ -98,6 +99,7 @@ class Scene {
 
   setupTextureLoader() {
     this.textureLoader = new THREE.TextureLoader();
+    // this.textureLoader.crossOrigin = "anonymous";
   }
 
   setupControls() {
@@ -114,12 +116,13 @@ class Scene {
     this.line = new Line();
     this.board = new Board();
     this.logoIut = new LogoIut();
+    this.cover = new Cover();
     // ....
 
     // ajout de l'objet à la scène par défaut
-    this.camera.position.z = 200;
-    this.scene.add(this.line.group);
-    this.currentObject = this.line;
+    this.camera.position.z = 50;
+    this.scene.add(this.cover.group);
+    this.currentObject = this.cover;
   }
 
   onResize = () => {
