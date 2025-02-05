@@ -15,6 +15,7 @@ import Line from "./objects/Line";
 import Board from "./objects/Board";
 import LogoIut from "./objects/LogoIut";
 import Cover from "./objects/Cover";
+import audioController from "../utils/AudioController";
 
 class Scene {
   constructor() {}
@@ -120,7 +121,7 @@ class Scene {
     // ....
 
     // ajout de l'objet à la scène par défaut
-    this.camera.position.z = 50;
+    this.camera.position.z = 10;
     this.scene.add(this.cover.group);
     this.currentObject = this.cover;
   }
@@ -204,8 +205,8 @@ class Scene {
     // this.renderer.render(this.scene, this.camera);
     this.composer.render(); // prend le relais sur le renderer pour le post-processing
 
-    if (this.currentObject) {
-      this.currentObject.update();
+    if (this.currentObject && audioController.fdata) {
+      this.currentObject.update(time);
     }
 
     this.stats.end();

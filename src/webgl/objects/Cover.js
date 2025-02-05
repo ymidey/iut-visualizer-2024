@@ -8,17 +8,19 @@ export default class Cover {
   constructor() {
     this.group = new THREE.Group();
 
-    this.geometry = new THREE.PlaneGeometry(1, 1);
+    this.geometry = new THREE.PlaneGeometry(12, 12, 256, 256);
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         uMap: new THREE.Uniform(),
+        uTime: new THREE.Uniform(0),
+        uAudioFrequency: new THREE.Uniform(0),
       },
       side: THREE.DoubleSide,
       fragmentShader: fragmentShader,
       vertexShader: vertexShader,
     });
 
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.mesh = new THREE.Points(this.geometry, this.material);
 
     this.group.add(this.mesh);
 
@@ -39,5 +41,8 @@ export default class Cover {
     console.log(this.texture);
   }
 
-  update() {}
+  update(time) {
+    this.material.uniforms.uAudioFrequency.value = audioController.fdata[0];
+    this.material.uniforms.uTime.value = time;
+  }
 }
