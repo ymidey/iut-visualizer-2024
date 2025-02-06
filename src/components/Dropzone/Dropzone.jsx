@@ -52,20 +52,17 @@ const Dropzone = () => {
     >
       <input {...getInputProps()} />
 
-      {isDragActive && (
+      {/* {isDragActive && (
         // l'utilisateur est en train de drag and drop, afficher la dropzone
         <div className={s.outer}>
           <div className={s.inner}>
             <p>Déposez vos fichiers dans cette zone</p>
           </div>
         </div>
-      )}
+      )} */}
 
       <div className={s.import}>
-        <p>
-          Importez vos fichiers .mp3 avec un drag and drop ou en cliquant sur le
-          bouton.
-        </p>
+        <p>Importez vos fichiers .mp3 en cliquant sur le bouton</p>
         <Button label={"Browse"} onClick={open} />
       </div>
     </div>

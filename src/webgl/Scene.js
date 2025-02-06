@@ -101,11 +101,11 @@ class Scene {
 
   setupTextureLoader() {
     this.textureLoader = new THREE.TextureLoader();
-    // this.textureLoader.crossOrigin = "anonymous";
   }
 
   setupControls() {
     this.controls = new OrbitControls(this.camera, this.canvas);
+    this.controls.enableDamping = true;
   }
 
   setupStats() {
@@ -119,13 +119,13 @@ class Scene {
     this.board = new Board();
     this.logoIut = new LogoIut();
     this.cover = new Cover();
-    this.cube = new Cube();
+    // this.cube = new Cube();
     // ....
 
     // ajout de l'objet à la scène par défaut
-    this.camera.position.z = 10;
-    this.scene.add(this.cube.group);
-    this.currentObject = this.cube;
+    this.camera.position.z = 20;
+    this.scene.add(this.board.group);
+    this.currentObject = this.board;
   }
 
   onResize = () => {
@@ -193,6 +193,14 @@ class Scene {
         this.camera.position.z = 5;
         this.currentObject = this.logoIut;
         break;
+      case 3:
+        // logo iut
+        this.bloomParams.threshold = 0.6;
+        this.bloomPass.threshold = 0.6;
+
+        this.camera.position.z = 20;
+        this.currentObject = this.cover;
+        break;
       default:
         break;
     }
@@ -206,6 +214,8 @@ class Scene {
 
     // this.renderer.render(this.scene, this.camera);
     this.composer.render(); // prend le relais sur le renderer pour le post-processing
+
+    this.controls.update();
 
     if (this.currentObject && audioController.fdata) {
       this.currentObject.update(time, deltaTime);

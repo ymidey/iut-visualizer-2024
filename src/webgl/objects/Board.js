@@ -6,6 +6,8 @@ export default class Board {
     this.width = 16;
     this.gap = 1;
     this.group = new THREE.Group();
+    this.count = 0;
+    this.materialCount = 0;
 
     this.geometry = new THREE.BoxGeometry(1, 1, 1);
 
@@ -34,9 +36,23 @@ export default class Board {
     }
   }
 
-  update() {
-    // console.log(this.group.children[0]);
-    if (!audioController.fdata) return;
+  update(time, deltaTime) {
+    if (audioController.bpm) {
+      this.count += deltaTime * 0.001;
+
+      if (this.count > 60 / audioController.bpm) {
+        if (this.materialCount % 2 === 0) {
+          this.whiteMaterial.color.setHex(0x8f00ff);
+          this.pinkMaterial.color.setHex(0xffffff);
+        } else {
+          this.pinkMaterial.color.setHex(0x8f00ff);
+          this.whiteMaterial.color.setHex(0xffffff);
+        }
+
+        this.count = 0;
+        this.materialCount += 1;
+      }
+    }
 
     for (let i = 0; i < this.group.children.length; i++) {
       this.group.children[i].scale.z = audioController.fdata[i] * 0.05;

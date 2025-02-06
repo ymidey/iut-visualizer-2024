@@ -15,6 +15,10 @@ const VISUALIZERS = [
     name: "Logo Iut",
     index: 2,
   },
+  {
+    name: "Cover",
+    index: 3,
+  },
 ];
 
 const Picker = () => {

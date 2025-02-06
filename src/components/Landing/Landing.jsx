@@ -17,10 +17,10 @@ const Landing = () => {
         <h1 className={s.title}>Music Visualizer</h1>
         <p>
           Projet conçu dans le cadre du cours Dispositifs interactifs à l'IUT de
-          Champs-sur-Marne.
+          Champs-sur-Marne. <br />
+          Découverte et usage de three.js, gsap, react, la Web Audio API. <br />
+          Importez vos fichiers mp3 pour pouvoir les visualiser en 3D.
         </p>
-        <p>Découverte et usage de three.js, gsap, react, la Web Audio API.</p>
-        <p>Drag and drop de fichiers mp3 pour pouvoir les visualiser en 3D.</p>
         <Button label={"Commencer"} onClick={onClick} />
       </div>
     </section>
