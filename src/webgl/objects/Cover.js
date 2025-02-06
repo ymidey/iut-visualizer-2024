@@ -8,21 +8,36 @@ export default class Cover {
   constructor() {
     this.group = new THREE.Group();
 
-    this.geometry = new THREE.PlaneGeometry(1, 1);
+    this.geometry = new THREE.PlaneGeometry(12, 12, 256, 256);
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         uMap: new THREE.Uniform(),
+        uSize: new THREE.Uniform(4),
+        uTime: new THREE.Uniform(0),
+        uAudioFrequency: new THREE.Uniform(0),
       },
       side: THREE.DoubleSide,
       fragmentShader: fragmentShader,
       vertexShader: vertexShader,
     });
 
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.mesh = new THREE.Points(this.geometry, this.material);
 
     this.group.add(this.mesh);
 
-    console.log(this.mesh);
+    this.addTweaks();
+  }
+
+  addTweaks() {
+    this.folder = scene.gui.addFolder("Cover");
+
+    this.folder
+      .add(this.material.uniforms.uSize, "value", 0, 10)
+      .name("uSize")
+      .onChange((value) => {
+        this.material.uniforms.uSize.value = value;
+      })
+      .listen(); // rafraichit visuellement la GUI avec la nouvelle valeur
   }
 
   setCover(src) {
@@ -31,6 +46,8 @@ export default class Cover {
 
     // donner la texture au material
     // this.material.map = this.texture;
+
+    console.log(this.material.uniforms);
     this.material.uniforms.uMap.value = this.texture;
 
     // force la recompilation du material
@@ -39,5 +56,9 @@ export default class Cover {
     console.log(this.texture);
   }
 
-  update() {}
+  update(time) {
+    // màj le time passé en uniform
+    this.material.uniforms.uTime.value = time;
+    this.material.uniforms.uAudioFrequency.value = audioController.fdata[0];
+  }
 }

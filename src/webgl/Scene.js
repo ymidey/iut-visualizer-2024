@@ -15,6 +15,8 @@ import Line from "./objects/Line";
 import Board from "./objects/Board";
 import LogoIut from "./objects/LogoIut";
 import Cover from "./objects/Cover";
+import audioController from "../utils/AudioController";
+import Cube from "./objects/Cube";
 
 class Scene {
   constructor() {}
@@ -117,12 +119,13 @@ class Scene {
     this.board = new Board();
     this.logoIut = new LogoIut();
     this.cover = new Cover();
+    this.cube = new Cube();
     // ....
 
     // ajout de l'objet à la scène par défaut
-    this.camera.position.z = 50;
-    this.scene.add(this.cover.group);
-    this.currentObject = this.cover;
+    this.camera.position.z = 10;
+    this.scene.add(this.cube.group);
+    this.currentObject = this.cube;
   }
 
   onResize = () => {
@@ -204,8 +207,8 @@ class Scene {
     // this.renderer.render(this.scene, this.camera);
     this.composer.render(); // prend le relais sur le renderer pour le post-processing
 
-    if (this.currentObject) {
-      this.currentObject.update();
+    if (this.currentObject && audioController.fdata) {
+      this.currentObject.update(time, deltaTime);
     }
 
     this.stats.end();
