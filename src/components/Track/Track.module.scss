@@ -46,3 +46,22 @@
     }
   }
 }
+
+.track {
+  transition: background 0.3s;
+  cursor: pointer;
+
+  &.playing {
+    background-color: #e0f7fa;
+    font-weight: bold;
+
+    .trackName::after {
+      content: " 🎵";
+    }
+  }
+}
+
+.selected {
+  background-color: #d0a0fd;
+  border: 2px solid #d0a0fd;
+}

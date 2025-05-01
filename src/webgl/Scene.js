@@ -15,11 +15,12 @@ import Line from "./objects/Line";
 import Board from "./objects/Board";
 import LogoIut from "./objects/LogoIut";
 import Cover from "./objects/Cover";
+import Triangle from "./objects/Triangle";
 import audioController from "../utils/AudioController";
 import Cube from "./objects/Cube";
 
 class Scene {
-  constructor() {}
+  constructor() { }
 
   setup(canvas) {
     this.canvas = canvas;
@@ -119,6 +120,7 @@ class Scene {
     this.board = new Board();
     this.logoIut = new LogoIut();
     this.cover = new Cover();
+    this.triange = new Triangle();
     // this.cube = new Cube();
     // ....
 
@@ -200,6 +202,11 @@ class Scene {
 
         this.camera.position.z = 20;
         this.currentObject = this.cover;
+        break;
+      case 4:
+        // triangle
+        this.camera.position.z = 20;
+        this.currentObject = this.triange;
         break;
       default:
         break;

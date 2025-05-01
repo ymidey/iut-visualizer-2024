@@ -1,68 +1,94 @@
 import { useEffect, useState } from "react";
-
 import Track from "../Track/Track";
 import useStore from "../../utils/store";
 import { fetchMetadata } from "../../utils/utils";
 import TRACKS from "../../utils/TRACKS";
-
+import audioController from "../../utils/AudioController";
 import fetchJsonp from "fetch-jsonp";
-
 import s from "./Tracks.module.scss";
 
 const Tracks = () => {
-  // permet d'alterner entre true et false pour afficher / cacher le composant
   const [showTracks, setShowTracks] = useState(false);
   const { tracks, setTracks } = useStore();
+  const currentTrackBPM = useStore((state) => state.currentTrackBPM);
 
-  // écouter la variable tracks qui vient du store
+  const [sortOption, setSortOption] = useState("none");
+  const [filterText, setFilterText] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isShuffleActive, setIsShuffleActive] = useState(false);
+
+  const playRandomTrack = () => {
+    const allTracks = getFilteredAndSortedTracks();
+    if (allTracks.length === 0) return;
+
+    const randomIndex = Math.floor(Math.random() * allTracks.length);
+    const randomTrack = allTracks[randomIndex];
+
+    const newShuffleState = !isShuffleActive;
+    setIsShuffleActive(newShuffleState);
+    audioController.setShuffleMode(newShuffleState);
+
+    if (newShuffleState) {
+      audioController.play(randomTrack.preview, randomIndex, allTracks);
+    }
+  };
+
   useEffect(() => {
     if (tracks.length > TRACKS.length) {
       setShowTracks(true);
     }
   }, [tracks]);
 
-  // TODO : Slider (infini ou non) pour sélectionner les tracks
-
-  // TODO : Fonction de tri / filtre sur les tracks, par nom, durée...
-
-  // TODO : Récupérer les tracks du store
-
   useEffect(() => {
     fetchMetadata(TRACKS, tracks, setTracks);
   }, []);
 
-  const onKeyDown = (e) => {
-    if (e.keyCode === 13 && e.target.value !== "") {
-      // l'utilisateur a appuyé sur sa touche entrée
-      const userInput = e.target.value;
-
-      // appeler la fonction
-      getSongs(userInput);
+  useEffect(() => {
+    if (filterText.trim() === "") {
+      setSearchResults([]);
+      return;
     }
+
+    const delay = setTimeout(() => {
+      getSongs(filterText);
+    }, 500);
+
+    return () => clearTimeout(delay);
+  }, [filterText]);
+
+  const onInputChange = (e) => {
+    setFilterText(e.target.value);
   };
 
-  const getSongs = async (userInput) => {
+  const getSongs = async (query) => {
     let response = await fetchJsonp(
-      `https://api.deezer.com/search?q=${userInput}&output=jsonp`
+      `https://api.deezer.com/search?q=${query}&output=jsonp`
     );
 
     if (response.ok) {
       response = await response.json();
-
-      // récupérer le tableau de tracks du store existant
-      const _tracks = [...tracks];
-
-      // pour chaque track renvoyée par l'API
-      response.data.forEach((result) => {
-        _tracks.push(result);
-      });
-
-      // màj le store
-      setTracks(_tracks);
-
-      console.log(_tracks);
+      setSearchResults(response.data);
     } else {
-      // erreurs
+      setSearchResults([]);
+    }
+  };
+
+  const getFilteredAndSortedTracks = () => {
+    let base = searchResults.length > 0 ? searchResults : tracks;
+    let filtered = base.filter((track) => {
+      const text = filterText.toLowerCase();
+      const title = track.title.toLowerCase();
+      const artist = track.artist?.name?.toLowerCase() || "";
+      return title.includes(text) || artist.includes(text);
+    });
+
+    switch (sortOption) {
+      case "title":
+        return filtered.sort((a, b) => a.title.localeCompare(b.title));
+      case "duration":
+        return filtered.sort((a, b) => a.duration - b.duration);
+      default:
+        return filtered;
     }
   };
 
@@ -75,37 +101,57 @@ const Tracks = () => {
         tracklist
       </div>
 
-      <section
-        className={`
-      ${s.wrapper}
-      ${showTracks ? s.wrapper_visible : ""}`}
-      >
+      <section className={`${s.wrapper} ${showTracks ? s.wrapper_visible : ""}`}>
         <div className={s.tracks}>
           <div className={s.header}>
             <span className={s.order}>#</span>
             <span className={s.title}>Titre</span>
             <span className={s.duration}>Durée</span>
+            <span className={s.bpm}>BPM</span>
           </div>
 
-          {tracks.map((track, i) => (
+          <div className={s.controls}>
+            <div className={s.searchContainer}>
+              <button
+                onClick={playRandomTrack}
+                className={`${s.randomButton} ${isShuffleActive ? s.active : s.inactive}`}
+              >
+                🎲 Lecture aléatoire
+              </button>
+
+              <input
+                type="text"
+                placeholder="Rechercher un artiste"
+                value={filterText}
+                onChange={onInputChange}
+                className={s.searchInput}
+              />
+            </div>
+
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className={s.sortSelect}
+            >
+              <option value="none">Tri par défaut</option>
+              <option value="title">Trier par nom</option>
+              <option value="duration">Trier par durée</option>
+            </select>
+          </div>
+
+          {getFilteredAndSortedTracks().map((track, i, array) => (
             <Track
               key={track.title + i}
               title={track.title}
               duration={track.duration}
               cover={track.album.cover_xl}
-              // artists={track.artists}
+              artists={track.artist ? [track.artist] : []}
               src={track.preview}
               index={i}
+              playlist={array}
             />
           ))}
         </div>
-
-        <input
-          type="text"
-          placeholder="Chercher un artiste"
-          className={s.searchInput}
-          onKeyDown={onKeyDown}
-        />
       </section>
     </>
   );

@@ -19,6 +19,11 @@ const VISUALIZERS = [
     name: "Cover",
     index: 3,
   },
+  {
+    name: "Triangle",
+    index: 4,
+
+  }
 ];
 
 const Picker = () => {

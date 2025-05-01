@@ -1,8 +1,14 @@
 import gsap from "gsap";
 import detect from "bpm-detective";
+import useStore from "./store";
+
 
 class AudioController {
-  constructor() {}
+  constructor() {
+    this.currentIndex = null;
+    this.playlist = [];
+    this.shuffle = false; // ← mode aléatoire désactivé par défaut
+  }
 
   setup() {
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -11,7 +17,6 @@ class AudioController {
     this.audio.crossOrigin = "anonymous";
     this.bpm = null;
 
-    // this.audio.src = danceTheNight;
     this.audio.volume = 0.1;
 
     this.audioSource = this.ctx.createMediaElementSource(this.audio);
@@ -30,30 +35,72 @@ class AudioController {
 
     this.audio.addEventListener("loadeddata", async () => {
       await this.detectBPM();
-      // console.log(`The BPM is: ${bpm}`);
+    });
+
+    this.audio.addEventListener("ended", () => {
+      this.playNext();
     });
   }
 
   detectBPM = async () => {
-    // Create an offline audio context to process the data
-    const offlineCtx = new OfflineAudioContext(
-      1,
-      this.audio.duration * this.ctx.sampleRate,
-      this.ctx.sampleRate
-    );
-    // Decode the current audio data
-    const response = await fetch(this.audio.src); // Fetch the audio file
-    const buffer = await response.arrayBuffer();
-    const audioBuffer = await offlineCtx.decodeAudioData(buffer);
-    // Use bpm-detective to detect the BPM
-    this.bpm = detect(audioBuffer);
-    console.log(`Detected BPM: ${this.bpm}`);
-    // return bpm;
+    try {
+      const offlineCtx = new OfflineAudioContext(
+        1,
+        this.audio.duration * this.ctx.sampleRate,
+        this.ctx.sampleRate
+      );
+      const response = await fetch(this.audio.src);
+      const buffer = await response.arrayBuffer();
+      const audioBuffer = await offlineCtx.decodeAudioData(buffer);
+      this.bpm = detect(audioBuffer);
+      console.log(`Detected BPM: ${this.bpm}`);
+    } catch (error) {
+      console.error("BPM detection failed:", error);
+    }
   };
 
-  play = (src) => {
+  /**
+   * Définit le mode de lecture aléatoire
+   */
+  setShuffleMode = (active) => {
+    this.shuffle = active;
+  };
+
+  /**
+   * Joue une piste spécifique
+   * @param {string} src - URL de la piste
+   * @param {number} index - index dans la playlist
+   * @param {Array} newPlaylist - playlist complète
+   */
+  play = (src, index = 0, newPlaylist = null) => {
+    if (newPlaylist) {
+      this.playlist = newPlaylist;
+    }
+
+    this.currentIndex = index;
+    useStore.getState().setCurrentTrackIndex(index); // 👈 notifier l'état global
+
     this.audio.src = src;
     this.audio.play();
+  };
+
+  /**
+   * Joue la prochaine piste en fonction du mode
+   */
+  playNext = () => {
+    if (!this.playlist || this.playlist.length === 0) return;
+
+    if (this.shuffle) {
+      const randomIndex = Math.floor(Math.random() * this.playlist.length);
+      const nextTrack = this.playlist[randomIndex];
+      this.play(nextTrack.preview, randomIndex);
+    } else if (
+      this.currentIndex !== null &&
+      this.currentIndex + 1 < this.playlist.length
+    ) {
+      const nextTrack = this.playlist[this.currentIndex + 1];
+      this.play(nextTrack.preview, this.currentIndex + 1);
+    }
   };
 
   tick = () => {
