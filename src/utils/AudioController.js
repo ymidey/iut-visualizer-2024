@@ -84,6 +84,31 @@ class AudioController {
     this.audio.play();
   };
 
+  playPrevious = () => {
+    if (!this.playlist || this.playlist.length === 0) return;
+
+    if (this.currentIndex !== null && this.currentIndex > 0) {
+      const previousTrack = this.playlist[this.currentIndex - 1];
+      this.play(previousTrack.preview, this.currentIndex - 1);
+    }
+  };
+
+
+  play = (src, index = 0, newPlaylist = null) => {
+    if (newPlaylist) {
+      this.playlist = newPlaylist;
+    }
+
+    this.currentIndex = index;
+
+    const setCurrentTrackIndex = useStore.getState().setCurrentTrackIndex;
+    setCurrentTrackIndex(index); // ← met à jour l'état global
+
+    this.audio.src = src;
+    this.audio.play();
+  };
+
+
   /**
    * Joue la prochaine piste en fonction du mode
    */
@@ -103,9 +128,17 @@ class AudioController {
     }
   };
 
+  setVolume(volume) {
+    if (this.audio) {
+      this.audio.volume = volume;
+    }
+  }
+
   tick = () => {
     this.analyserNode.getByteFrequencyData(this.fdata);
   };
+
+
 }
 
 const audioController = new AudioController();

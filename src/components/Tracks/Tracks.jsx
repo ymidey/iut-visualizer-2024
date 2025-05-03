@@ -15,23 +15,33 @@ const Tracks = () => {
   const [sortOption, setSortOption] = useState("none");
   const [filterText, setFilterText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [isShuffleActive, setIsShuffleActive] = useState(false);
+  const [isShuffle, setIsShuffle] = useState(false);
 
-  const playRandomTrack = () => {
-    const allTracks = getFilteredAndSortedTracks();
-    if (allTracks.length === 0) return;
+  
+const toggleShuffleMode = () => {
+  const newShuffleState = !isShuffle;
+  setIsShuffle(newShuffleState);
+  audioController.setShuffleMode(newShuffleState);
+};
 
-    const randomIndex = Math.floor(Math.random() * allTracks.length);
-    const randomTrack = allTracks[randomIndex];
+  const [volume, setVolume] = useState(.5); 
 
-    const newShuffleState = !isShuffleActive;
-    setIsShuffleActive(newShuffleState);
-    audioController.setShuffleMode(newShuffleState);
+const handleVolumeChange = (val) => {
+  const newVolume = parseFloat(val);
+  setVolume(newVolume);
+  audioController.setVolume(newVolume); 
+};
 
-    if (newShuffleState) {
-      audioController.play(randomTrack.preview, randomIndex, allTracks);
-    }
-  };
+const playRandomTrack = () => {
+  const allTracks = getFilteredAndSortedTracks();
+  if (allTracks.length === 0) return;
+
+  const randomIndex = Math.floor(Math.random() * allTracks.length);
+  const randomTrack = allTracks[randomIndex];
+
+
+  audioController.play(randomTrack.preview, randomIndex, allTracks);
+};
 
   useEffect(() => {
     if (tracks.length > TRACKS.length) {
@@ -109,35 +119,49 @@ const Tracks = () => {
             <span className={s.duration}>Durée</span>
             <span className={s.bpm}>BPM</span>
           </div>
+<select
+  value={sortOption}
+  onChange={(e) => setSortOption(e.target.value)}
+  className={s.sortSelect}
+>
+  <option value="none">Tri par défaut</option>
+  <option value="title">Trier par nom</option>
+  <option value="duration">Trier par durée</option>
+</select>
+<div className={s.controls}>
+<button
+  onClick={toggleShuffleMode}
+  className={`${s.randomButton} ${isShuffle ? s.active : ""}`}
+>
+  🎲
+</button>
 
-          <div className={s.controls}>
-            <div className={s.searchContainer}>
-              <button
-                onClick={playRandomTrack}
-                className={`${s.randomButton} ${isShuffleActive ? s.active : s.inactive}`}
-              >
-                🎲 Lecture aléatoire
-              </button>
+  <button onClick={() => audioController.playPrevious()} className={s.prevButton}>
+    ⏮
+  </button>
 
-              <input
-                type="text"
-                placeholder="Rechercher un artiste"
-                value={filterText}
-                onChange={onInputChange}
-                className={s.searchInput}
-              />
-            </div>
+  <input
+    type="text"
+    placeholder="Rechercher un titre"
+    value={filterText}
+    onChange={onInputChange}
+    className={s.searchInput}
+  />
 
-            <select
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-              className={s.sortSelect}
-            >
-              <option value="none">Tri par défaut</option>
-              <option value="title">Trier par nom</option>
-              <option value="duration">Trier par durée</option>
-            </select>
-          </div>
+  <button onClick={() => audioController.playNext()} className={s.nextButton}>
+    ⏭
+  </button>
+  <input
+  type="range"
+  min="0"
+  max="1"
+  step="0.01"
+  value={volume}
+  onChange={(e) => handleVolumeChange(e.target.value)}
+  className={s.volumeSlider}
+/>
+</div>
+
 
           {getFilteredAndSortedTracks().map((track, i, array) => (
             <Track
