@@ -16,6 +16,8 @@ const Tracks = () => {
   const [filterText, setFilterText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isShuffle, setIsShuffle] = useState(false);
+  const [repeatOne, setRepeatOne] = useState(false);
+
 
   
 const toggleShuffleMode = () => {
@@ -117,7 +119,6 @@ const playRandomTrack = () => {
             <span className={s.order}>#</span>
             <span className={s.title}>Titre</span>
             <span className={s.duration}>Durée</span>
-            <span className={s.bpm}>BPM</span>
           </div>
 <select
   value={sortOption}
@@ -128,6 +129,7 @@ const playRandomTrack = () => {
   <option value="title">Trier par nom</option>
   <option value="duration">Trier par durée</option>
 </select>
+
 <div className={s.controls}>
 <button
   onClick={toggleShuffleMode}
@@ -151,6 +153,17 @@ const playRandomTrack = () => {
   <button onClick={() => audioController.playNext()} className={s.nextButton}>
     ⏭
   </button>
+  <button
+  onClick={() => {
+    const newRepeatState = !repeatOne;
+    setRepeatOne(newRepeatState);
+    audioController.setRepeatOne(newRepeatState);
+  }}
+  className={`${s.repeatButton} ${repeatOne ? s.active : ""}`}
+>
+  🔂
+</button>
+
   <input
   type="range"
   min="0"
@@ -160,6 +173,7 @@ const playRandomTrack = () => {
   onChange={(e) => handleVolumeChange(e.target.value)}
   className={s.volumeSlider}
 />
+
 </div>
 
 

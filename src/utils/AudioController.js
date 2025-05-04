@@ -7,7 +7,8 @@ class AudioController {
   constructor() {
     this.currentIndex = null;
     this.playlist = [];
-    this.shuffle = false; // ← mode aléatoire désactivé par défaut
+    this.shuffle = false;
+    this.repeatOne = false;
   }
 
   setup() {
@@ -38,8 +39,14 @@ class AudioController {
     });
 
     this.audio.addEventListener("ended", () => {
-      this.playNext();
+      if (this.repeatOne) {
+        this.audio.currentTime = 0;
+        this.audio.play();
+      } else {
+        this.playNext();
+      }
     });
+
   }
 
   detectBPM = async () => {
@@ -64,6 +71,14 @@ class AudioController {
    */
   setShuffleMode = (active) => {
     this.shuffle = active;
+  };
+
+  /**
+   * Définit le mode de répétition
+   * @param {boolean} active - true pour activer la répétition, false pour désactiver
+   */
+  setRepeatOne = (active) => {
+    this.repeatOne = active;
   };
 
   /**

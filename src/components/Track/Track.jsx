@@ -47,6 +47,7 @@ const Track = ({ title, cover, src, duration, artists, index, playlist, bpm }) =
               </span>
             ))}
           </span>
+          
         </div>
       </div>
       <span className={s.duration}>{getSeconds()}</span>
