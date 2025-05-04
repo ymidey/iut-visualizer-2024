@@ -91,7 +91,9 @@
 .prevButton,
 .nextButton,
 .randomButton,
-.repeatButton {
+.repeatButton,
+.favoritesButton,
+.sortSelect {
   background: #333;
   color: white;
   border: 2px solid white;
@@ -101,15 +103,21 @@
   transition: background 0.3s;
 }
 
+.sortSelect{
+  margin-right: 15px;
+}
+
 .prevButton:hover,
 .nextButton:hover,
 .randomButton:hover,
-.repeatButton:hover {
+.repeatButton:hover,
+.favoritesButton:hover {
   background: #555;
 }
 
 .randomButton.active,
-.repeatButton.active {
+.repeatButton.active,
+.favoritesButton.active {
   border-color: green;
 }
 
@@ -199,20 +207,5 @@ width: 100%;
   gap: 1rem;
 }
 
-.sortSelect {
-  padding: 0.5rem;
-  border-radius: 4px;
-  font-size: 1rem;
-  background-color: transparent;
-  border: 1px solid #fff;
-  color: white;
-  cursor: pointer;
-  position: relative;
-  z-index: 1;
-}
 
-.sortSelect option {
-  background-color: black;
-  color: white;
-}
 

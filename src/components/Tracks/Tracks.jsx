@@ -17,33 +17,66 @@ const Tracks = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatOne, setRepeatOne] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const favoriteIds = useStore((state) => state.favoriteIds);
 
+  const toggleShuffleMode = () => {
+    const newShuffleState = !isShuffle;
+    setIsShuffle(newShuffleState);
+    audioController.setShuffleMode(newShuffleState);
+  };
 
-  
-const toggleShuffleMode = () => {
-  const newShuffleState = !isShuffle;
-  setIsShuffle(newShuffleState);
-  audioController.setShuffleMode(newShuffleState);
-};
+  // ✅ Mise à jour : récupération des favoris depuis l'API Deezer
+  const fetchFavoriteTracks = async () => {
+    const favorites = useStore.getState().favoriteIds;
 
-  const [volume, setVolume] = useState(.5); 
+    const results = await Promise.all(
+      favorites.map(async (id) => {
+        const trackId = typeof id === "object" ? id.id : id;
+        if (!trackId) return null;
 
-const handleVolumeChange = (val) => {
-  const newVolume = parseFloat(val);
-  setVolume(newVolume);
-  audioController.setVolume(newVolume); 
-};
+        try {
+          const response = await fetchJsonp(
+            `https://api.deezer.com/track/${trackId}?output=jsonp`
+          );
+          const data = await response.json();
+          if (!data || typeof data.id !== "number") return null;
+          return data;
+        } catch (err) {
+          console.error(`Erreur pour l'ID ${trackId}:`, err);
+          return null;
+        }
+      })
+    );
 
-const playRandomTrack = () => {
-  const allTracks = getFilteredAndSortedTracks();
-  if (allTracks.length === 0) return;
+    const validResults = results.filter(
+      (track) => track && typeof track.id === "number"
+    );
 
-  const randomIndex = Math.floor(Math.random() * allTracks.length);
-  const randomTrack = allTracks[randomIndex];
+    setTracks(validResults);
+  };
 
+  useEffect(() => {
+    if (showFavorites) {
+      fetchFavoriteTracks();
+    }
+  }, [showFavorites]);
 
-  audioController.play(randomTrack.preview, randomIndex, allTracks);
-};
+  const [volume, setVolume] = useState(0.5);
+
+  const handleVolumeChange = (val) => {
+    const newVolume = parseFloat(val);
+    setVolume(newVolume);
+    audioController.setVolume(newVolume);
+  };
+
+  const playRandomTrack = () => {
+    const allTracks = getFilteredAndSortedTracks();
+    if (allTracks.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * allTracks.length);
+    const randomTrack = allTracks[randomIndex];
+    audioController.play(randomTrack.preview, randomIndex, allTracks);
+  };
 
   useEffect(() => {
     if (tracks.length > TRACKS.length) {
@@ -86,13 +119,25 @@ const playRandomTrack = () => {
   };
 
   const getFilteredAndSortedTracks = () => {
-    let base = searchResults.length > 0 ? searchResults : tracks;
-    let filtered = base.filter((track) => {
+    let base;
+
+    if (showFavorites) {
+      const favoriteIds = JSON.parse(localStorage.getItem("favorites") || "[]");
+      base = tracks.filter((track) => track && favoriteIds.includes(track.id));
+    } else {
+      base = searchResults.length > 0 ? searchResults : tracks;
+    }
+
+    let filtered = base;
+
+    if (!showFavorites) {
       const text = filterText.toLowerCase();
-      const title = track.title.toLowerCase();
-      const artist = track.artist?.name?.toLowerCase() || "";
-      return title.includes(text) || artist.includes(text);
-    });
+      filtered = base.filter((track) => {
+        const title = track?.title?.toLowerCase() || "";
+        const artist = track?.artist?.name?.toLowerCase() || "";
+        return title.includes(text) || artist.includes(text);
+      });
+    }
 
     switch (sortOption) {
       case "title":
@@ -115,80 +160,94 @@ const playRandomTrack = () => {
 
       <section className={`${s.wrapper} ${showTracks ? s.wrapper_visible : ""}`}>
         <div className={s.tracks}>
-          <div className={s.header}>
-            <span className={s.order}>#</span>
-            <span className={s.title}>Titre</span>
-            <span className={s.duration}>Durée</span>
-          </div>
-<select
-  value={sortOption}
-  onChange={(e) => setSortOption(e.target.value)}
-  className={s.sortSelect}
->
-  <option value="none">Tri par défaut</option>
-  <option value="title">Trier par nom</option>
-  <option value="duration">Trier par durée</option>
-</select>
-
-<div className={s.controls}>
-<button
-  onClick={toggleShuffleMode}
-  className={`${s.randomButton} ${isShuffle ? s.active : ""}`}
->
-  🎲
-</button>
-
-  <button onClick={() => audioController.playPrevious()} className={s.prevButton}>
-    ⏮
-  </button>
-
-  <input
-    type="text"
-    placeholder="Rechercher un titre"
-    value={filterText}
-    onChange={onInputChange}
-    className={s.searchInput}
-  />
-
-  <button onClick={() => audioController.playNext()} className={s.nextButton}>
-    ⏭
-  </button>
-  <button
-  onClick={() => {
-    const newRepeatState = !repeatOne;
-    setRepeatOne(newRepeatState);
-    audioController.setRepeatOne(newRepeatState);
-  }}
-  className={`${s.repeatButton} ${repeatOne ? s.active : ""}`}
->
-  🔂
-</button>
-
-  <input
-  type="range"
-  min="0"
-  max="1"
-  step="0.01"
-  value={volume}
-  onChange={(e) => handleVolumeChange(e.target.value)}
-  className={s.volumeSlider}
-/>
-
+     <div className={s.header}>
+  <span className={s.order}>#</span>
+  <span className={s.title}>Titre</span>
+  <span className={s.duration}>Durée</span>
+  <span className={s.favorite}>Favoris</span>
 </div>
 
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+            className={s.sortSelect}
+          >
+            <option value="none">Tri par défaut</option>
+            <option value="title">Trier par nom</option>
+            <option value="duration">Trier par durée</option>
+          </select>
 
-          {getFilteredAndSortedTracks().map((track, i, array) => (
-            <Track
-              key={track.title + i}
-              title={track.title}
-              duration={track.duration}
-              cover={track.album.cover_xl}
-              artists={track.artist ? [track.artist] : []}
-              src={track.preview}
-              index={i}
-              playlist={array}
+          <button
+            onClick={() => setShowFavorites(!showFavorites)}
+            className={`${s.favoritesButton} ${showFavorites ? s.active : ""}`}
+          >
+            ❤️ Favoris
+          </button>
+
+          <div className={s.controls}>
+            <button
+              onClick={toggleShuffleMode}
+              className={`${s.randomButton} ${isShuffle ? s.active : ""}`}
+            >
+              🎲
+            </button>
+
+            <button onClick={() => audioController.playPrevious()} className={s.prevButton}>
+              ⏮
+            </button>
+
+            {!showFavorites && (
+              <input
+                type="text"
+                placeholder="Rechercher un titre"
+                value={filterText}
+                onChange={onInputChange}
+                className={s.searchInput}
+              />
+            )}
+
+            <button onClick={() => audioController.playNext()} className={s.nextButton}>
+              ⏭
+            </button>
+
+            <button
+              onClick={() => {
+                const newRepeatState = !repeatOne;
+                setRepeatOne(newRepeatState);
+                audioController.setRepeatOne(newRepeatState);
+              }}
+              className={`${s.repeatButton} ${repeatOne ? s.active : ""}`}
+            >
+              🔂
+            </button>
+
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={(e) => handleVolumeChange(e.target.value)}
+              className={s.volumeSlider}
             />
-          ))}
+          </div>
+
+          {getFilteredAndSortedTracks().map((track, i, array) =>
+            track ? (
+              <Track
+                key={track.id ?? track.title + i}
+                id={track.id}
+                title={track.title}
+                duration={track.duration}
+                cover={track.album?.cover_xl}
+                artists={track.artist ? [track.artist] : []}
+                src={track.preview}
+                index={i}
+                playlist={array}
+                bpm={track.bpm}
+              />
+            ) : null
+          )}
         </div>
       </section>
     </>
