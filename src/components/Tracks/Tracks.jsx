@@ -13,13 +13,19 @@ const Tracks = () => {
   const currentTrackBPM = useStore((state) => state.currentTrackBPM);
 
   const [sortOption, setSortOption] = useState("none");
-  const [filterText, setFilterText] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatOne, setRepeatOne] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const favoriteIds = useStore((state) => state.favoriteIds);
   const [volume, setVolume] = useState(0.5);
+
+  const [searchTextFavorites, setSearchTextFavorites] = useState("");
+const [searchTextAll, setSearchTextAll] = useState("");  const [searchResults, setSearchResults] = useState([]);
+
+const filterText = showFavorites ? searchTextFavorites : searchTextAll;
+const setFilterText = showFavorites ? setSearchTextFavorites : setSearchTextAll;
+
 
   const toggleShuffleMode = () => {
     const newShuffleState = !isShuffle;
@@ -64,10 +70,10 @@ const Tracks = () => {
     }
   }, [showFavorites]);
 
-  // Réinitialiser le champ de recherche quand on change les favoris
-  useEffect(() => {
-    setFilterText("");
-  }, [showFavorites]);
+  // // Réinitialiser le champ de recherche quand on change les favoris
+  // useEffect(() => {
+  //   setFilterText("");
+  // }, [showFavorites]);
 
   const handleVolumeChange = (val) => {
     const newVolume = parseFloat(val);
