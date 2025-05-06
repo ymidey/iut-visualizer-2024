@@ -56,11 +56,15 @@ const Tracks = () => {
     setTracks(validResults);
   };
 
-  useEffect(() => {
-    if (showFavorites) {
-      fetchFavoriteTracks();
-    }
-  }, [showFavorites]);
+useEffect(() => {
+  if (showFavorites) {
+    fetchFavoriteTracks();
+  } else {
+    fetchMetadata(TRACKS, [], setTracks);
+  }
+}, [showFavorites]);
+
+
 
   const [volume, setVolume] = useState(0.5);
 
