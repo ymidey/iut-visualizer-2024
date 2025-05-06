@@ -2,7 +2,6 @@ import gsap from "gsap";
 import detect from "bpm-detective";
 import useStore from "./store";
 
-
 class AudioController {
   constructor() {
     this.currentIndex = null;
@@ -46,7 +45,6 @@ class AudioController {
         this.playNext();
       }
     });
-
   }
 
   detectBPM = async () => {
@@ -83,9 +81,9 @@ class AudioController {
 
   /**
    * Joue une piste spécifique
-   * @param {string} src - URL de la piste
-   * @param {number} index - index dans la playlist
-   * @param {Array} newPlaylist - playlist complète
+   * @param {string} src - URL de la piste audio
+   * @param {number} index - Index de la piste dans la playlist
+   * @param {Array} newPlaylist - Nouvelle playlist
    */
   play = (src, index = 0, newPlaylist = null) => {
     if (newPlaylist) {
@@ -93,7 +91,10 @@ class AudioController {
     }
 
     this.currentIndex = index;
-    useStore.getState().setCurrentTrackIndex(index); // 👈 notifier l'état global
+
+    // Mise à jour de l'état global pour le changement de piste
+    useStore.getState().setCurrentTrackIndex(index);
+    useStore.getState().setCurrentTrackId(this.playlist[index]?.id);  // ✅ Utilisation de l'ID de la piste
 
     this.audio.src = src;
     this.audio.play();
@@ -107,22 +108,6 @@ class AudioController {
       this.play(previousTrack.preview, this.currentIndex - 1);
     }
   };
-
-
-  play = (src, index = 0, newPlaylist = null) => {
-    if (newPlaylist) {
-      this.playlist = newPlaylist;
-    }
-
-    this.currentIndex = index;
-
-    const setCurrentTrackIndex = useStore.getState().setCurrentTrackIndex;
-    setCurrentTrackIndex(index); // ← met à jour l'état global
-
-    this.audio.src = src;
-    this.audio.play();
-  };
-
 
   /**
    * Joue la prochaine piste en fonction du mode
@@ -152,8 +137,6 @@ class AudioController {
   tick = () => {
     this.analyserNode.getByteFrequencyData(this.fdata);
   };
-
-
 }
 
 const audioController = new AudioController();

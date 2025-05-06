@@ -6,6 +6,7 @@ const useStore = create((set, get) => ({
 
   currentTrackIndex: null,
   setCurrentTrackIndex: (index) => set({ currentTrackIndex: index }),
+  
   currentTrackId: null,
 setCurrentTrackId: (id) => set({ currentTrackId: id }),
 

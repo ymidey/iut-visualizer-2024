@@ -19,6 +19,7 @@ const Tracks = () => {
   const [repeatOne, setRepeatOne] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const favoriteIds = useStore((state) => state.favoriteIds);
+  const [volume, setVolume] = useState(0.5);
 
   const toggleShuffleMode = () => {
     const newShuffleState = !isShuffle;
@@ -26,7 +27,6 @@ const Tracks = () => {
     audioController.setShuffleMode(newShuffleState);
   };
 
-  // ✅ Mise à jour : récupération des favoris depuis l'API Deezer
   const fetchFavoriteTracks = async () => {
     const favorites = useStore.getState().favoriteIds;
 
@@ -56,17 +56,18 @@ const Tracks = () => {
     setTracks(validResults);
   };
 
-useEffect(() => {
-  if (showFavorites) {
-    fetchFavoriteTracks();
-  } else {
-    fetchMetadata(TRACKS, [], setTracks);
-  }
-}, [showFavorites]);
+  useEffect(() => {
+    if (showFavorites) {
+      fetchFavoriteTracks();
+    } else {
+      fetchMetadata(TRACKS, [], setTracks);
+    }
+  }, [showFavorites]);
 
-
-
-  const [volume, setVolume] = useState(0.5);
+  // Réinitialiser le champ de recherche quand on change les favoris
+  useEffect(() => {
+    setFilterText("");
+  }, [showFavorites]);
 
   const handleVolumeChange = (val) => {
     const newVolume = parseFloat(val);
@@ -134,7 +135,7 @@ useEffect(() => {
 
     let filtered = base;
 
-    if (!showFavorites) {
+    if (filterText.trim() !== "") {
       const text = filterText.toLowerCase();
       filtered = base.filter((track) => {
         const title = track?.title?.toLowerCase() || "";
@@ -155,21 +156,18 @@ useEffect(() => {
 
   return (
     <>
-      <div
-        className={s.toggleTracks}
-        onClick={() => setShowTracks(!showTracks)}
-      >
+      <div className={s.toggleTracks} onClick={() => setShowTracks(!showTracks)}>
         tracklist
       </div>
 
       <section className={`${s.wrapper} ${showTracks ? s.wrapper_visible : ""}`}>
         <div className={s.tracks}>
-     <div className={s.header}>
-  <span className={s.order}>#</span>
-  <span className={s.title}>Titre</span>
-  <span className={s.duration}>Durée</span>
-  <span className={s.favorite}>Favoris</span>
-</div>
+          <div className={s.header}>
+            <span className={s.order}>#</span>
+            <span className={s.title}>Titre</span>
+            <span className={s.duration}>Durée</span>
+            <span className={s.favorite}>Favoris</span>
+          </div>
 
           <select
             value={sortOption}
@@ -200,15 +198,13 @@ useEffect(() => {
               ⏮
             </button>
 
-            {!showFavorites && (
-              <input
-                type="text"
-                placeholder="Rechercher un titre"
-                value={filterText}
-                onChange={onInputChange}
-                className={s.searchInput}
-              />
-            )}
+            <input
+              type="text"
+              placeholder="Rechercher un titre"
+              value={filterText}
+              onChange={onInputChange}
+              className={s.searchInput}
+            />
 
             <button onClick={() => audioController.playNext()} className={s.nextButton}>
               ⏭

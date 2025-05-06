@@ -6,15 +6,15 @@ import useStore from "../../utils/store";
 
 const Track = ({ id, title, cover, src, duration, artists, index, playlist, bpm }) => {
   const [isSelected, setIsSelected] = useState(false);
-  const currentTrackIndex = useStore((state) => state.currentTrackIndex);
+const currentTrackId = useStore((state) => state.currentTrackId);
 
   const favoriteIds = useStore((state) => state.favoriteIds);
   const toggleFavorite = useStore((state) => state.toggleFavorite);
   const isFavorite = favoriteIds.includes(id);
 
-  useEffect(() => {
-    setIsSelected(index === currentTrackIndex);
-  }, [currentTrackIndex, index]);
+useEffect(() => {
+  setIsSelected(id === currentTrackId);
+}, [currentTrackId, id]);
 
   const getSeconds = () => {
     const minutes = Math.floor(duration / 60);
@@ -27,6 +27,8 @@ const Track = ({ id, title, cover, src, duration, artists, index, playlist, bpm 
     audioController.play(src, index, playlist);
     scene.cover.setCover?.(cover);
     setIsSelected(true);
+    useStore.getState().setCurrentTrackId(id);
+
   };
 
   const handleFavoriteClick = (e) => {
