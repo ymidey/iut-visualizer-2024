@@ -5,10 +5,8 @@ export default class Sphere {
     constructor() {
         this.group = new THREE.Group();
 
-        // Création de la géométrie de la sphère avec une subdivision élevée
         this.geometry = new THREE.IcosahedronGeometry(4, 64);
 
-        // Définition des uniformes pour le shader
         this.uniforms = {
             u_time: { value: 0.0 },
             u_bass: { value: 0.0 },
@@ -19,7 +17,6 @@ export default class Sphere {
             u_particleSize: { value: 0.05 }
         };
 
-        // Création du matériau avec des shaders personnalisés
         this.material = new THREE.ShaderMaterial({
             vertexShader: `
                 uniform float u_time;
@@ -52,54 +49,64 @@ export default class Sphere {
             wireframe: true
         });
 
-        // Création du maillage et ajout au groupe
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.group.add(this.mesh);
 
-        // Ajout d'un effet de glow avec une sphère secondaire
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: 0x8f00ff,
-            transparent: true,
-            opacity: 0.1,
-            blending: THREE.AdditiveBlending,
-            side: THREE.BackSide
-        });
-        const glowMesh = new THREE.Mesh(this.geometry.clone(), glowMaterial);
-        glowMesh.scale.multiplyScalar(1.2);
-        this.group.add(glowMesh);
-
-        // Création des particules
         this.particleGeometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(this.uniforms.u_particleCount.value * 3);
-        for (let i = 0; i < this.uniforms.u_particleCount.value; i++) {
-            positions.set([Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5], i * 3);
+        const count = this.uniforms.u_particleCount.value;
+        const positions = new Float32Array(count * 3);
+
+        for (let i = 0; i < count; i++) {
+            const theta = Math.random() * 2 * Math.PI;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const radius = 6;
+
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.sin(phi) * Math.sin(theta);
+            const z = radius * Math.cos(phi);
+
+            positions.set([x, y, z], i * 3);
         }
+
+        this.initialPositions = positions.slice();
         this.particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
         this.particleMaterial = new THREE.PointsMaterial({
             color: 0x8f00ff,
             size: this.uniforms.u_particleSize.value,
             transparent: true,
-            blending: THREE.AdditiveBlending
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
         });
+
         this.particles = new THREE.Points(this.particleGeometry, this.particleMaterial);
         this.group.add(this.particles);
     }
 
     update(time, deltaTime) {
-        // Mise à jour des uniformes pour animer la sphère
+        const bass = audioController.getBass();
         this.uniforms.u_time.value = time / 1000;
-        this.uniforms.u_bass.value = audioController.getBass();
+        this.uniforms.u_bass.value = bass;
+        this.uniforms.u_glowIntensity.value = Math.max(0.2, Math.min(1.0, bass * 0.5));
 
-        // Mise à jour de l'intensité du glow en fonction des basses
-        this.uniforms.u_glowIntensity.value = Math.min(1.0, audioController.getBass() * 0.5);
+        this.particles.rotation.y += 0.0015;
 
-        // Mise à jour des particules pour simuler l'effet magique
-        const positions = this.particleGeometry.attributes.position.array;
-        for (let i = 0; i < positions.length; i += 3) {
-            positions[i] += Math.sin(time * 0.001 + i) * 0.01;
-            positions[i + 1] += Math.cos(time * 0.001 + i) * 0.01;
-            positions[i + 2] += Math.sin(time * 0.001 + i) * 0.01;
+        const base = this.initialPositions;
+        const pos = this.particleGeometry.attributes.position.array;
+
+        const amplitude = 0.3 + bass * 0.2;
+        const radiusFactor = 1.0 + bass * 0.5;
+
+        for (let i = 0; i < pos.length; i += 3) {
+            const x0 = base[i] * radiusFactor;
+            const y0 = base[i + 1] * radiusFactor;
+            const z0 = base[i + 2] * radiusFactor;
+
+            pos[i] = x0 + Math.sin(time * 0.001 + i) * amplitude;
+            pos[i + 1] = y0 + Math.cos(time * 0.001 + i) * amplitude;
+            pos[i + 2] = z0 + Math.sin(time * 0.001 + i * 0.3) * amplitude;
         }
+
         this.particleGeometry.attributes.position.needsUpdate = true;
     }
 }

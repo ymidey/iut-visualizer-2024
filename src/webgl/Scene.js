@@ -5,12 +5,10 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
-// post processing
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
-// objects
 import Line from "./objects/Line";
 import Board from "./objects/Board";
 import LogoIut from "./objects/LogoIut";
@@ -30,7 +28,6 @@ class Scene {
 
     this.currentObject = null;
 
-    // instantier la logique three.js
     this.setupScene();
     this.setupCamera();
     this.setupRenderer();
@@ -55,7 +52,7 @@ class Scene {
       .onChange((value) => {
         this.bloomPass.threshold = value;
       })
-      .listen(); // rafraichit visuellement la GUI avec la nouvelle valeur
+      .listen();
 
     this.bloomFolder
       .add(this.bloomParams, "strength", 0, 3)
@@ -116,7 +113,6 @@ class Scene {
   }
 
   addObjects() {
-    // Déclaration des objets
     this.line = new Line();
     this.board = new Board();
     this.logoIut = new LogoIut();
@@ -124,7 +120,6 @@ class Scene {
     this.triange = new Triangle();
     this.sphere = new Sphere();
 
-    // ajout de l'objet à la scène par défaut
     this.camera.position.z = 20;
     this.scene.add(this.board.group);
     this.currentObject = this.board;
@@ -171,10 +166,8 @@ class Scene {
   }
 
   pickVisualizer(index) {
-    // on remove le group qui est rendu
     this.scene.remove(this.currentObject.group);
 
-    // on change le current object
     switch (index) {
       case 0:
         // line

@@ -122,19 +122,17 @@ class AudioController {
   playNext = () => {
     if (!this.playlist || this.playlist.length === 0) return;
 
-
-    if (this.shuffle) {
+    if (this.currentIndex !== null && this.currentIndex + 1 >= this.playlist.length) {
+      this.play(this.playlist[0].preview, 0);
+    } else if (this.shuffle) {
       const randomIndex = Math.floor(Math.random() * this.playlist.length);
-      const nextTrack = this.playlist[randomIndex];
-      this.play(nextTrack.preview, randomIndex);
-    } else if (
-      this.currentIndex !== null &&
-      this.currentIndex + 1 < this.playlist.length
-    ) {
+      this.play(this.playlist[randomIndex].preview, randomIndex);
+    } else if (this.currentIndex !== null && this.currentIndex + 1 < this.playlist.length) {
       const nextTrack = this.playlist[this.currentIndex + 1];
       this.play(nextTrack.preview, this.currentIndex + 1);
     }
   };
+
 
   setVolume(volume) {
     if (this.audio) {
