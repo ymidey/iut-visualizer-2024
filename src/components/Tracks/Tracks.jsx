@@ -26,7 +26,6 @@ const [searchTextAll, setSearchTextAll] = useState("");  const [searchResults, s
 const filterText = showFavorites ? searchTextFavorites : searchTextAll;
 const setFilterText = showFavorites ? setSearchTextFavorites : setSearchTextAll;
 
-
   const toggleShuffleMode = () => {
     const newShuffleState = !isShuffle;
     setIsShuffle(newShuffleState);

@@ -100,6 +100,13 @@ class AudioController {
     this.audio.play();
   };
 
+  getBass() {
+    this.analyserNode.getByteFrequencyData(this.fdata);
+    // Calculer la moyenne des basses en utilisant les premières bins de fréquence
+    const bassLevel = this.fdata.slice(0, 10).reduce((sum, value) => sum + value, 0) / 10;
+    return bassLevel / 255; // Normalisation entre 0 et 1
+  }
+
   playPrevious = () => {
     if (!this.playlist || this.playlist.length === 0) return;
 
@@ -114,6 +121,7 @@ class AudioController {
    */
   playNext = () => {
     if (!this.playlist || this.playlist.length === 0) return;
+
 
     if (this.shuffle) {
       const randomIndex = Math.floor(Math.random() * this.playlist.length);

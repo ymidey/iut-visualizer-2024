@@ -62,6 +62,7 @@ useEffect(() => {
       {isFavorite ? "❤️" : "🤍"}
     </button>
   </span>
+  
 </div>
   );
 };
