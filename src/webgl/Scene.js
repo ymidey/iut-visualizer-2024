@@ -17,7 +17,6 @@ import LogoIut from "./objects/LogoIut";
 import Cover from "./objects/Cover";
 import Triangle from "./objects/Triangle";
 import audioController from "../utils/AudioController";
-import Particle from "./objects/Particle";
 import Sphere from "./objects/Sphere";
 
 
@@ -123,9 +122,7 @@ class Scene {
     this.logoIut = new LogoIut();
     this.cover = new Cover();
     this.triange = new Triangle();
-    this.particle = new Particle();
     this.sphere = new Sphere();
-    // ....
 
     // ajout de l'objet à la scène par défaut
     this.camera.position.z = 20;
@@ -161,7 +158,6 @@ class Scene {
       1000
     );
 
-    // this.camera.position.z = 20;
   }
 
   setupRenderer() {
@@ -212,13 +208,8 @@ class Scene {
         this.currentObject = this.triange;
         break;
       case 5:
-        // Particle
-        this.camera.position.z = 20;
-        this.currentObject = this.particle
-        break;
-      case 6:
         // Sphere
-        this.camera.position.z = 20;
+        this.camera.position.z = 10;
         this.currentObject = this.sphere;
         break;
       default:

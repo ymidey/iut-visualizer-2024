@@ -24,12 +24,8 @@ const VISUALIZERS = [
     index: 4,
   },
   {
-    name: "Paraticle",
-    index: 5,
-  },
-  {
     name: "Sphere",
-    index: 6,
+    index: 5,
   },
 
 ];
