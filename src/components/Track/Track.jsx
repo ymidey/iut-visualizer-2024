@@ -6,15 +6,17 @@ import useStore from "../../utils/store";
 
 const Track = ({ id, title, cover, src, duration, artists, index, playlist, bpm }) => {
   const [isSelected, setIsSelected] = useState(false);
-const currentTrackId = useStore((state) => state.currentTrackId);
 
+  const currentTrackId = useStore((state) => state.currentTrackId);
   const favoriteIds = useStore((state) => state.favoriteIds);
   const toggleFavorite = useStore((state) => state.toggleFavorite);
-  const isFavorite = favoriteIds.includes(id);
 
-useEffect(() => {
-  setIsSelected(id === currentTrackId);
-}, [currentTrackId, id]);
+  const localUniqueId = id ?? `local-${index}`;
+  const isFavorite = favoriteIds.includes(localUniqueId);
+
+  useEffect(() => {
+    setIsSelected(localUniqueId === currentTrackId);
+  }, [currentTrackId, localUniqueId]);
 
   const getSeconds = () => {
     const minutes = Math.floor(duration / 60);
@@ -27,43 +29,41 @@ useEffect(() => {
     audioController.play(src, index, playlist);
     scene.cover.setCover?.(cover);
     setIsSelected(true);
-    useStore.getState().setCurrentTrackId(id);
-
+    useStore.getState().setCurrentTrackId(localUniqueId);
   };
 
   const handleFavoriteClick = (e) => {
     e.stopPropagation();
-    toggleFavorite(id);
+    toggleFavorite(localUniqueId);
   };
 
   return (
-<div className={`${s.track} ${isSelected ? s.selected : ""}`} onClick={onClick}>
-  <span className={s.order}>{index + 1}</span>
+    <div className={`${s.track} ${isSelected ? s.selected : ""}`} onClick={onClick}>
+      <span className={s.order}>{index + 1}</span>
 
-  <div className={s.title}>
-    <img src={cover} alt="" className={s.cover} />
-    <div className={s.details}>
-      <span className={s.trackName}>{title}</span>
-      <span className={s.artistName}>
-        {artists.map((artist, i) => (
-          <span key={i}>
-            {artist.name}
-            {i < artists.length - 1 ? ", " : ""}
+      <div className={s.title}>
+        <img src={cover} alt="" className={s.cover} />
+        <div className={s.details}>
+          <span className={s.trackName}>{title}</span>
+          <span className={s.artistName}>
+            {artists.map((artist, i) => (
+              <span key={i}>
+                {artist.name}
+                {i < artists.length - 1 ? ", " : ""}
+              </span>
+            ))}
           </span>
-        ))}
+        </div>
+      </div>
+
+      <span className={s.duration}>{getSeconds()}</span>
+
+      <span className={s.favorite}>
+        <button onClick={handleFavoriteClick} className={s.favoriteButton}>
+          {isFavorite ? "❤️" : "🤍"}
+        </button>
       </span>
     </div>
-  </div>
-
-  <span className={s.duration}>{getSeconds()}</span>
-
-  <span className={s.favorite}>
-    <button onClick={handleFavoriteClick} className={s.favoriteButton}>
-      {isFavorite ? "❤️" : "🤍"}
-    </button>
-  </span>
-  
-</div>
   );
 };
 

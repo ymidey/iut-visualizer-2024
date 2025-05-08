@@ -170,39 +170,57 @@ class Scene {
 
     switch (index) {
       case 0:
-        // line
-        this.camera.position.z = 200;
-        this.currentObject = this.line;
-        break;
-      case 1:
         // board
         this.camera.position.z = 20;
+        this.bloomParams.threshold = 0;
+        this.bloomPass.threshold = 0;
+        this.bloomParams.strength = 0.6;
+        this.bloomPass.strength = 0.6;
         this.currentObject = this.board;
+        break;
+      case 1:
+        // line
+        this.camera.position.z = 200;
+        this.bloomParams.threshold = 0;
+        this.bloomPass.threshold = 0;
+        this.bloomParams.strength = 0.6;
+        this.bloomPass.strength = 0.6;
+        this.currentObject = this.line;
         break;
       case 2:
         // logo iut
         this.bloomParams.threshold = 0.6;
         this.bloomPass.threshold = 0.6;
-
+        this.bloomParams.strength = 0.6;
+        this.bloomPass.strength = 0.6;
         this.camera.position.z = 5;
         this.currentObject = this.logoIut;
         break;
       case 3:
-        // logo iut
+        // Cover
         this.bloomParams.threshold = 0.6;
         this.bloomPass.threshold = 0.6;
-
+        this.bloomParams.strength = 0.6;
+        this.bloomPass.strength = 0.6;
         this.camera.position.z = 20;
         this.currentObject = this.cover;
         break;
       case 4:
         // triangle
         this.camera.position.z = 20;
+        this.bloomParams.strength = 0.6;
+        this.bloomPass.threshold = 0;
+        this.bloomPass.strength = 0.6;
+        this.bloomParams.threshold = 0;
         this.currentObject = this.triange;
         break;
       case 5:
         // Sphere
-        this.camera.position.z = 10;
+        this.camera.position.z = 11;
+        this.bloomParams.strength = 3;
+        this.bloomPass.threshold = 0;
+        this.bloomPass.strength = 3;
+        this.bloomParams.threshold = 0;
         this.currentObject = this.sphere;
         break;
       default:

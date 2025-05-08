@@ -16,7 +16,6 @@ class AudioController {
     this.audio = new Audio();
     this.audio.crossOrigin = "anonymous";
     this.bpm = null;
-
     this.audio.volume = 0.1;
 
     this.audioSource = this.ctx.createMediaElementSource(this.audio);
@@ -64,37 +63,25 @@ class AudioController {
     }
   };
 
-  /**
-   * Définit le mode de lecture aléatoire
-   */
   setShuffleMode = (active) => {
     this.shuffle = active;
   };
 
-  /**
-   * Définit le mode de répétition
-   * @param {boolean} active - true pour activer la répétition, false pour désactiver
-   */
   setRepeatOne = (active) => {
     this.repeatOne = active;
   };
 
-  /**
-   * Joue une piste spécifique
-   * @param {string} src - URL de la piste audio
-   * @param {number} index - Index de la piste dans la playlist
-   * @param {Array} newPlaylist - Nouvelle playlist
-   */
   play = (src, index = 0, newPlaylist = null) => {
     if (newPlaylist) {
       this.playlist = newPlaylist;
     }
 
     this.currentIndex = index;
+    const track = this.playlist[index];
+    const trackId = track?.id ?? `local-${index}`;
 
-    // Mise à jour de l'état global pour le changement de piste
     useStore.getState().setCurrentTrackIndex(index);
-    useStore.getState().setCurrentTrackId(this.playlist[index]?.id);  // ✅ Utilisation de l'ID de la piste
+    useStore.getState().setCurrentTrackId(trackId);
 
     this.audio.src = src;
     this.audio.play();
@@ -102,9 +89,8 @@ class AudioController {
 
   getBass() {
     this.analyserNode.getByteFrequencyData(this.fdata);
-    // Calculer la moyenne des basses en utilisant les premières bins de fréquence
     const bassLevel = this.fdata.slice(0, 10).reduce((sum, value) => sum + value, 0) / 10;
-    return bassLevel / 255; // Normalisation entre 0 et 1
+    return bassLevel / 255;
   }
 
   playPrevious = () => {
@@ -116,9 +102,6 @@ class AudioController {
     }
   };
 
-  /**
-   * Joue la prochaine piste en fonction du mode
-   */
   playNext = () => {
     if (!this.playlist || this.playlist.length === 0) return;
 
@@ -132,7 +115,6 @@ class AudioController {
       this.play(nextTrack.preview, this.currentIndex + 1);
     }
   };
-
 
   setVolume(volume) {
     if (this.audio) {
